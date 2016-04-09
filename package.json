@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "start": "npm run update-schema && babel-node ./server.js",
+    "start": "nodemon --ignore data/schema.graphql --ignore data/schema.json --delay 0.1 --exec 'npm run update-schema && babel-node ./server.js'",
     "update-schema": "babel-node ./scripts/updateSchema.js"
   },
   "dependencies": {
@@ -25,6 +25,7 @@
     "webpack-dev-server": "1.14.1"
   },
   "devDependencies": {
-    "babel-cli": "6.5.1"
+    "babel-cli": "6.5.1",
+    "nodemon": "^1.5.1"
   }
 }
