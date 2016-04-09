@@ -24,6 +24,7 @@ import {
   connectionArgs,
   connectionDefinitions,
   connectionFromArray,
+  cursorForObjectInConnection,
   fromGlobalId,
   globalIdField,
   mutationWithClientMutationId,
@@ -33,14 +34,10 @@ import {
 import {
   Game,
   Tag,
-  HidingSpot,
-  checkHidingSpotForTreasure,
   getGame,
-  getHidingSpot,
-  getHidingSpots,
   getTag,
   getTags,
-  getTurnsRemaining,
+  addTag,
 } from './database';
 
 const {nodeInterface, nodeField} = nodeDefinitions(
@@ -48,9 +45,8 @@ const {nodeInterface, nodeField} = nodeDefinitions(
     const {type, id} = fromGlobalId(globalId);
     if (type === 'Game') {
       return getGame(id)
-    } else if (type === 'HidingSpot') {
-      return getHidingSpot(id)
     } else if (type === 'Tag') {
+      console.log('called getTag(%s)', id)
       return getTag(id)
     } else {
       return null;
@@ -59,8 +55,6 @@ const {nodeInterface, nodeField} = nodeDefinitions(
   (obj) => {
     if (obj instanceof Game) {
       return gameType
-    } else if (obj instanceof HidingSpot) {
-      return hidingSpotType
     } else if (obj instanceof Tag) {
       return tagType
     } else {
@@ -71,20 +65,9 @@ const {nodeInterface, nodeField} = nodeDefinitions(
 
 var gameType = new GraphQLObjectType({
   name: 'Game',
-  description: 'A treasure search game',
+  description: 'iss just a gaem, y u heff to be mad',
   fields: () => ({
     id: globalIdField('Game'),
-    hidingSpots: {
-      type: hidingSpotConnection,
-      description: 'Places where treasure might be hidden',
-      args: connectionArgs,
-      resolve: (game, args) => connectionFromArray(getHidingSpots(), args),
-    },
-    turnsRemaining: {
-      type: GraphQLInt,
-      description: 'The number of turns a player has left to find the treasure',
-      resolve: () => getTurnsRemaining(),
-    },
     tags: {
       type: tagConnection,
       description: 'Java script tags',
@@ -100,34 +83,6 @@ var gameType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 });
 
-var hidingSpotType = new GraphQLObjectType({
-  name: 'HidingSpot',
-  description: 'A place where you might find treasure',
-  fields: () => ({
-    id: globalIdField('HidingSpot'),
-    hasBeenChecked: {
-      type: GraphQLBoolean,
-      description: 'True this spot has already been checked for treasure',
-      resolve: (hidingSpot) => hidingSpot.hasBeenChecked,
-    },
-    hasTreasure: {
-      type: GraphQLBoolean,
-      description: 'True if this hiding spot holds treasure',
-      resolve: (hidingSpot) => {
-        if (hidingSpot.hasBeenChecked) {
-          return hidingSpot.hasTreasure;
-        } else {
-          return null;  // Shh... it's a secret!
-        }
-      },
-    },
-  }),
-  interfaces: [nodeInterface],
-});
-
-var {connectionType: hidingSpotConnection} =
-  connectionDefinitions({name: 'HidingSpot', nodeType: hidingSpotType});
-
 var tagType = new GraphQLObjectType({
   name: 'Tag',
   description: 'A third-party javascript tag',
@@ -141,7 +96,7 @@ var tagType = new GraphQLObjectType({
   interfaces: [nodeInterface],
 })
 
-var {connectionType: tagConnection} =
+var {connectionType: tagConnection, edgeType: TagEdgeType} =
   connectionDefinitions({ name: 'Tag', nodeType: tagType })
 
 const queryType = new GraphQLObjectType({
@@ -155,54 +110,38 @@ const queryType = new GraphQLObjectType({
   }),
 });
 
-const CheckHidingSpotForTreasureMutation = mutationWithClientMutationId({
-  name: 'CheckHidingSpotForTreasure',
-  inputFields: {
-    id: { type: new GraphQLNonNull(GraphQLID) },
-  },
-  outputFields: {
-    hidingSpot: {
-      type: hidingSpotType,
-      resolve: ({localHidingSpotId}) => getHidingSpot(localHidingSpotId),
-    },
-    game: {
-      type: gameType,
-      resolve: () => getGame(),
-    },
-  },
-  mutateAndGetPayload: ({id}) => {
-    const localHidingSpotId = fromGlobalId(id).id;
-    checkHidingSpotForTreasure(localHidingSpotId);
-    return {localHidingSpotId};
-  },
-});
-
 const AddTagMutation = mutationWithClientMutationId({
   name: 'AddTag',
   inputFields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
-    source: { type: GraphQLString },
+    source: { type: new GraphQLNonNull(GraphQLString) },
   },
   outputFields: {
-    randomNumber: {
-      type: GraphQLInt,
-      resolve: () => new Promise(resolve => { setTimeout(() => { resolve(Math.random()) }, 4000) })
-    },
     game: {
       type: gameType,
       resolve: () => getGame(),
+    },
+    tagEdge: {
+      type: TagEdgeType,
     }
   },
-  mutateAndGetPayload: (e) => {
-    console.log('GOT A THING', e)
-    return Promise.resolve({});
+  mutateAndGetPayload: ({source}) => {
+    console.log('adding tag', source)
+    var newTagId = addTag({source})
+    var tag = getTag(newTagId)
+    console.log('added tag', tag)
+    return ({
+      tagEdge: {
+        cursor: cursorForObjectInConnection(getTags(), tag),
+        node: tag
+      }
+    })
   }
 })
 
 const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
-    checkHidingSpotForTreasure: CheckHidingSpotForTreasureMutation,
     addTag: AddTagMutation,
   }),
 });

@@ -12,7 +12,6 @@
 
 // Model types
 export class Game {}
-export class HidingSpot {}
 export class Tag {}
 
 // Mock data
@@ -22,16 +21,8 @@ game.id = '1';
 const hidingSpots = [];
 const tags = [];
 (function() {
-  let hidingSpot;
   let tag;
-  const indexOfSpotWithTreasure = Math.floor(Math.random() * 9);
   for (let i = 0; i < 9; i++) {
-    hidingSpot = new HidingSpot();
-    hidingSpot.id = `${i}`;
-    hidingSpot.hasTreasure = (i === indexOfSpotWithTreasure);
-    hidingSpot.hasBeenChecked = false;
-    hidingSpots.push(hidingSpot);
-
     tag = new Tag();
     tag.id = `tag-${i}`;
     tag.source = 'source code ' + i
@@ -39,24 +30,17 @@ const tags = [];
   }
 })();
 
-let turnsRemaining = 3;
-
-export function checkHidingSpotForTreasure(id) {
-  if (hidingSpots.some(hs => hs.hasTreasure && hs.hasBeenChecked)) {
-    return;
-  }
-  turnsRemaining--;
-  const hidingSpot = getHidingSpot(id);
-  hidingSpot.hasBeenChecked = true;
-}
-export function getHidingSpot(id) {
-  return hidingSpots.find(hs => hs.id === id);
-}
 export function getGame() { return game; }
-export function getHidingSpots() { return hidingSpots; }
-export function getTurnsRemaining() { return turnsRemaining; }
 
 export function getTag(id) {
   return tags.find(tag => tag.id === id)
+}
+export function addTag({ source }) {
+  tags.push({
+    source
+  })
+  var id = tags.length;
+  tags[tags.length - 1].id = tags.length
+  return id
 }
 export function getTags() { return tags }

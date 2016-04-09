@@ -21,31 +21,39 @@ export default class AddTagMutation extends Relay.Mutation {
     return Relay.QL`mutation{addTag}`;
   }
   getVariables() {
-    return { id: this.props.game.id, };
+    return {
+      id: this.props.game.id,
+      source: this.props.source
+    };
   }
   // The fat query represents what fields change when the query is executed
   getFatQuery() {
     return Relay.QL`
-      fragment on AddTagPayload {
-        randomNumber,
-        game {
-          tags,
-          tagCount,
-        },
+      fragment on AddTagPayload @relay(pattern: true) {
+        tagEdge,
+        game { id, },
       }
     `;
   }
   getConfigs() {
      return [{
-       type: 'FIELDS_CHANGE',
-       fieldIDs: {
-         game: this.props.game.id,
-       },
+       type: 'RANGE_ADD',
+       parentName: 'game',
+       parentID: this.props.game.id,
+       connectionName: 'tags',
+       edgeName: 'tagEdge',
+       rangeBehaviors: {
+         '': 'append',
+       }
      }];
   }
   getOptimisticResponse() {
     return {
-      randomNumber: Math.random()
+      tagEdge: {
+        node: {
+          source: 'lol new tag, wait....'
+        }
+      }
     };
   }
 }
