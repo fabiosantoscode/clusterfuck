@@ -1,6 +1,5 @@
 .git
 scripts/babel-relay-plugin
-relay/.git
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 .git
