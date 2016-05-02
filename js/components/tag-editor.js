@@ -32,8 +32,9 @@ class TagEditor extends React.Component {
     })
   }
   renderEditButton() {
+    const editWord = (this.state||{}).editMode ? 'Cancel' : 'Edit'
     return (
-      <button onClick={() => { this.handleEditModeToggle() }}>edit</button>
+      <button onClick={() => { this.handleEditModeToggle() }}>{editWord}</button>
     )
   }
   renderEditMode() {
@@ -49,7 +50,7 @@ class TagEditor extends React.Component {
           <dt> Title </dt>
           <dl> <input ref={(input) => { this.refs = { ...this.refs, input } }}/> </dl>
         </dl>
-        <div onClick={(e) => this.handleSaveClick(e)}>Save</div>
+        <button onClick={(e) => this.handleSaveClick(e)}>Save</button>
         {editButton}
       </div>
     )
@@ -62,6 +63,7 @@ class TagEditor extends React.Component {
     return (
       <pre>
         {JSON.stringify(tag)}
+        {this.renderEditButton()}
       </pre>
     )
   }
