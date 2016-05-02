@@ -1,5 +1,7 @@
 .git
 scripts/babel-relay-plugin
-data/schema.graphql
-data/schema.json
 relay/.git
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+.git
+.gitignore
