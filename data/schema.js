@@ -38,6 +38,7 @@ import {
   getTag,
   getTags,
   addTag,
+  editTag,
 } from './database';
 
 const {nodeInterface, nodeField} = nodeDefinitions(
@@ -74,11 +75,6 @@ var gameType = new GraphQLObjectType({
       args: connectionArgs,
       resolve: (game, args) => connectionFromArray(getTags(), args),
     },
-    tagCount: {
-      type: GraphQLInt,
-      description: 'How many JS tags you have',
-      resolve: () => Math.floor(Math.random() * 500),
-    },
   }),
   interfaces: [nodeInterface],
 });
@@ -114,6 +110,30 @@ const queryType = new GraphQLObjectType({
   }),
 });
 
+const EditTagMutation = mutationWithClientMutationId({
+  name: 'EditTag',
+  inputFields: {
+    id: { type: new GraphQLNonNull(GraphQLID) },
+    title: { type: new GraphQLNonNull(GraphQLString) },
+    source: { type: new GraphQLNonNull(GraphQLString) },
+  },
+  outputFields: {
+    game: {
+      type: gameType,
+      resolve: () => getGame(),
+    },
+    tag: {
+      type: tagType,
+    }
+  },
+  mutateAndGetPayload: ({id, source, title}) => {
+    id = fromGlobalId(id).id
+    var editedTag = editTag({id, source, title})
+    console.log('edited tag', editedTag)
+    return { tag: editedTag }
+  }
+})
+
 const AddTagMutation = mutationWithClientMutationId({
   name: 'AddTag',
   inputFields: {
@@ -148,6 +168,7 @@ const mutationType = new GraphQLObjectType({
   name: 'Mutation',
   fields: () => ({
     addTag: AddTagMutation,
+    editTag: EditTagMutation,
   }),
 });
 

@@ -10,6 +10,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+import assert from 'assert'
+
 // Model types
 export class Game {}
 export class Tag {}
@@ -36,12 +38,21 @@ export function getGame() { return game; }
 export function getTag(id) {
   return tags.find(tag => tag.id === id)
 }
-export function addTag({ source }) {
+export function addTag({ source, title }) {
   tags.push({
     source
   })
   var id = tags.length;
   tags[tags.length - 1].id = tags.length
   return id
+}
+export function editTag({ id, source, title }) {
+  const tag = getTag(id)
+  console.log(tags)
+  console.log('have tag', id)
+  assert(tag)
+  tag.source = source
+  tag.title = title
+  return tag
 }
 export function getTags() { return tags }

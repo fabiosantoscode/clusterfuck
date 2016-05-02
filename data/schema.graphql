@@ -1,0 +1,67 @@
+input AddTagInput {
+  id: ID!
+  title: String!
+  source: String!
+  clientMutationId: String!
+}
+
+type AddTagPayload {
+  game: Game
+  tagEdge: TagEdge
+  clientMutationId: String!
+}
+
+input EditTagInput {
+  id: ID!
+  title: String!
+  source: String!
+  clientMutationId: String!
+}
+
+type EditTagPayload {
+  game: Game
+  tag: Tag
+  clientMutationId: String!
+}
+
+type Game implements Node {
+  id: ID!
+  tags(after: String, first: Int, before: String, last: Int): TagConnection
+}
+
+type Mutation {
+  addTag(input: AddTagInput!): AddTagPayload
+  editTag(input: EditTagInput!): EditTagPayload
+}
+
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Query {
+  node(id: ID!): Node
+  game: Game
+}
+
+type Tag implements Node {
+  id: ID!
+  title: String
+  source: String
+}
+
+type TagConnection {
+  pageInfo: PageInfo!
+  edges: [TagEdge]
+}
+
+type TagEdge {
+  node: Tag
+  cursor: String!
+}
