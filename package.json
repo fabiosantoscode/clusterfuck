@@ -1,7 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "start": "nodemon --ignore data/schema.graphql --ignore data/schema.json --delay 0.1 --exec 'npm run update-schema && babel-node ./server.js'",
+    "start": "babel-node ./server.js",
+    "serve": "nodemon --ignore data/schema.graphql --ignore data/schema.json --delay 0.1 --exec 'npm run update-schema && babel-node ./server.js'",
     "update-schema": "babel-node ./scripts/updateSchema.js"
   },
   "dependencies": {
