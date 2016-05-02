@@ -12,22 +12,18 @@
 
 import React from 'react';
 import Relay from 'react-relay';
-import TagEditor from './tag-editor';
+
+import MultiTagEditor from './MultiTagEditor';
+import TagEditor from './TagEditor';
 
 
 class TagManager extends React.Component {
-  renderTagEditors() {
-    return this.props.game.tags.edges.map((edge, i) => (
-      <TagEditor tag={edge.node} game={this.props.game} key={i} />
-    ))
-  }
   render() {
     let headerText = 'Clusterfuck';
     return (
       <div>
         <h1>{headerText}</h1>
-        {this.renderTagEditors()}
-        <TagEditor game={this.props.game} tag={null} createMode={true} />
+        <MultiTagEditor game={this.props.game} tagConnection={this.props.game.tags} />
       </div>
     );
   }
@@ -38,14 +34,9 @@ export default Relay.createContainer(TagManager, {
     game: () => Relay.QL`
       fragment on Game {
         tags(first: 500) {
-          edges {
-            node {
-              id,
-              ${TagEditor.getFragment('tag')},
-            }
-          }
+          ${MultiTagEditor.getFragment('tagConnection')}
         },
-        ${TagEditor.getFragment('game')},
+        ${MultiTagEditor.getFragment('game')}
       }
     `,
   },

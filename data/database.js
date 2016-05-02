@@ -39,12 +39,12 @@ export function getTag(id) {
   return tags.find(tag => tag.id === id)
 }
 export function addTag({ source, title }) {
-  tags.push({
-    source
-  })
-  var id = tags.length;
-  tags[tags.length - 1].id = tags.length
-  return id
+  const tag = new Tag()
+  tags.push(tag)
+  tag.source = source
+  tag.title = title
+  tag.id = tags.indexOf(tag);
+  return tag.id
 }
 export function editTag({ id, source, title }) {
   const tag = getTag(id)

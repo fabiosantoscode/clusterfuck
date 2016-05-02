@@ -7,7 +7,7 @@ import Relay from 'react-relay';
 import AddTagMutation from '../mutations/AddTagMutation';
 import EditTagMutation from '../mutations/EditTagMutation';
 
-function EditButton({ onEdit = () => null, children = 'Edit' }) {
+function EditToggleButton({ onEdit = () => null, children = 'Edit' }) {
   return (
     <button onClick={onEdit}>{children}</button>
   );
@@ -17,12 +17,15 @@ function TagViewer({ tag, onEdit = () => null }) {
   return (
     <pre>
       {tag.title}
-      <EditButton onEdit={onEdit} />
+      <EditToggleButton onEdit={onEdit} />
     </pre>
   )
 }
 
 class TagEditorEditMode extends React.Component {
+  componentWillMount() {
+    this.setState(this.props.tag)
+  }
   isValid() {
     if (!this.state) return false
     const { title, source } = this.state;
@@ -37,7 +40,7 @@ class TagEditorEditMode extends React.Component {
     } = this.props
     tag = tag || {}
     const editButton = displayCancel && (
-      <EditButton onEdit={onCancel}>Cancel</EditButton>
+      <EditToggleButton onEdit={onCancel}>Cancel</EditToggleButton>
     )
     return (
       <form>
@@ -86,6 +89,7 @@ class TagEditor extends React.Component {
     }
   }
   initialiseMutation(fieldData) {
+    console.log('initialiseMutation', fieldData)
     const mutationVariables = {
       ...fieldData,
       game: this.props.game,
