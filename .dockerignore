@@ -1,2 +1,5 @@
 .git
+scripts/babel-relay-plugin
+data/schema.graphql
+data/schema.json
 relay/.git
