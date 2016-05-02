@@ -10,37 +10,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import AddTagMutation from '../mutations/AddTagMutation';
 import React from 'react';
 import Relay from 'react-relay';
+import TagEditor from './tag-editor';
 
-function TagEditor({ source }) {
-  return (
-    <pre>{source}</pre>
-  )
-}
 
 class TagManager extends React.Component {
-  _handleAddClick(e) {
-    Relay.Store.commitUpdate(
-      new AddTagMutation({
-        game: this.props.game,
-        source: this.refs.textarea.value
-      })
-    );
-  }
   renderTagEditors() {
     return this.props.game.tags.edges.map((edge, i) => (
-      <TagEditor source={edge.node.source} key={i} />
+      <TagEditor tag={edge.node} game={this.props.game} key={i} />
     ))
-  }
-  renderAddButton() {
-    return (
-      <div>
-        <textarea ref={(textarea) => { this.refs = { ...this.refs, textarea } }}/>
-        <div onClick={(e) => this._handleAddClick(e)}>add</div>
-      </div>
-    )
   }
   render() {
     let headerText = 'Clusterfuck';
@@ -48,7 +27,7 @@ class TagManager extends React.Component {
       <div>
         <h1>{headerText}</h1>
         {this.renderTagEditors()}
-        {this.renderAddButton()}
+        <TagEditor game={this.props.game} tag={null} createMode={true} />
       </div>
     );
   }
@@ -62,11 +41,11 @@ export default Relay.createContainer(TagManager, {
           edges {
             node {
               id,
-              source,
+              ${TagEditor.getFragment('tag')},
             }
           }
         },
-        ${AddTagMutation.getFragment('game')}
+        ${TagEditor.getFragment('game')},
       }
     `,
   },

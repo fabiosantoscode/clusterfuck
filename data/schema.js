@@ -88,6 +88,10 @@ var tagType = new GraphQLObjectType({
   description: 'A third-party javascript tag',
   fields: () => ({
     id: globalIdField('Tag'),
+    title: {
+      type: GraphQLString,
+      description: 'Title of the tag',
+    },
     source: {
       type: GraphQLString,
       description: 'Java Script that inserts the tag',
@@ -114,6 +118,7 @@ const AddTagMutation = mutationWithClientMutationId({
   name: 'AddTag',
   inputFields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
+    title: { type: new GraphQLNonNull(GraphQLString) },
     source: { type: new GraphQLNonNull(GraphQLString) },
   },
   outputFields: {
@@ -125,9 +130,9 @@ const AddTagMutation = mutationWithClientMutationId({
       type: TagEdgeType,
     }
   },
-  mutateAndGetPayload: ({source}) => {
+  mutateAndGetPayload: ({source, title}) => {
     console.log('adding tag', source)
-    var newTagId = addTag({source})
+    var newTagId = addTag({source, title})
     var tag = getTag(newTagId)
     console.log('added tag', tag)
     return ({

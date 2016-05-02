@@ -26,6 +26,7 @@ const tags = [];
     tag = new Tag();
     tag.id = `tag-${i}`;
     tag.source = 'source code ' + i
+    tag.title = 'Tag ' + i
     tags.push(tag);
   }
 })();

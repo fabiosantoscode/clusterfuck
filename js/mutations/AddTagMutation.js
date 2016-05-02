@@ -23,7 +23,8 @@ export default class AddTagMutation extends Relay.Mutation {
   getVariables() {
     return {
       id: this.props.game.id,
-      source: this.props.source
+      source: this.props.source,
+      title: this.props.title,
     };
   }
   // The fat query represents what fields change when the query is executed
@@ -51,7 +52,8 @@ export default class AddTagMutation extends Relay.Mutation {
     return {
       tagEdge: {
         node: {
-          source: 'lol new tag, wait....'
+          source: 'lol new tag, wait....',
+          title: '...',
         }
       }
     };
