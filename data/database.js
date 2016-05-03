@@ -43,13 +43,11 @@ export function addTag({ source, title }) {
   tags.push(tag)
   tag.source = source
   tag.title = title
-  tag.id = tags.indexOf(tag);
+  tag.id = `tag-${tags.indexOf(tag)}`;
   return tag.id
 }
 export function editTag({ id, source, title }) {
   const tag = getTag(id)
-  console.log(tags)
-  console.log('have tag', id)
   assert(tag)
   tag.source = source
   tag.title = title
